@@ -1,6 +1,6 @@
 spring:
   application:
-    name: spring-template
+    name: YunHaha
   # 默认 dev 环境
   profiles:
     active: dev
@@ -24,7 +24,7 @@ spring:
 # Redis 配置
   redis:
     database: 0
-    host: 192.168.74.128
+    host: 192.168.186.128
     port: 6379
     timeout: 5000
     password: root
@@ -39,7 +39,7 @@ spring:
       # 大小限制
       max-file-size: 10MB
   rabbitmq:
-    host: 192.168.74.128
+    host: 192.168.186.128
     port: 5672
     username: admin
     password: 123456
@@ -104,6 +104,3 @@ yuapi:
   client:
     access-key: 6j1zmr5n97fld6cofo39tvgo8co4ws5a  # 6dmz5g6ulrw0jrpjcv7oyilwyi5n3n8w
     secret-key: 9crna2uxeibma4x97ycy3kydzl2nci0u  # ozooxkjuelrft8vwmb1pfb9i9v5ay0yp
-
-model-id:
-  assistant: 1651472538074726401

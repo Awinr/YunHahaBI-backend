@@ -5,11 +5,12 @@ import cn.hutool.core.net.URLEncodeUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONUtil;
-import com.yupi.yucongming.dev.client.YuCongMingClient;
+import com.github.rholder.retry.Retryer;
 import com.yupi.yucongming.dev.common.BaseResponse;
 import com.yupi.yucongming.dev.model.DevChatRequest;
 import com.yupi.yucongming.dev.model.DevChatResponse;
 import com.yupi.yucongming.dev.utils.SignUtils;
+import io.web.bi.utils.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 生成鱼聪明客户端
@@ -43,18 +45,23 @@ public class YuCongMingClientHelper {
         String url = "https://www.yucongming.com/api/dev/chat";
         String json = JSONUtil.toJsonStr(devChatRequest);
         String result = null;
+        Retryer<String> retryer = Retry.getRetryer();
         try {
-            result = ((HttpRequest) HttpRequest.post(url)
-                    .setConnectionTimeout(3000)
-                    .setReadTimeout(30000)
-                    .addHeaders(this.getHeaderMap(json))).body(json).execute().body();
+            // 有异常会先进入重试机制，重试3次后，才会进入catch块
+            result = retryer.call(() -> {
+               return  ((HttpRequest) HttpRequest.post(url)
+                .setConnectionTimeout(3000)
+                .setReadTimeout(30)
+                .addHeaders(this.getHeaderMap(json)))
+                .body(json)
+                .execute()
+                .body();});
         } catch (Exception e) {
             log.error("request failed: " + e.getMessage(), e);
             return null;
         }
 
-        TypeReference<BaseResponse<DevChatResponse>> typeRef = new TypeReference<BaseResponse<DevChatResponse>>() {
-        };
+        TypeReference<BaseResponse<DevChatResponse>> typeRef = new TypeReference<BaseResponse<DevChatResponse>>() {};
         return (BaseResponse) JSONUtil.toBean(result, typeRef, false);
     }
 

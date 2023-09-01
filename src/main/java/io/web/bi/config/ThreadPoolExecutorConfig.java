@@ -29,7 +29,7 @@ public class ThreadPoolExecutorConfig {
             public Thread newThread(Runnable r) {
                 Thread thread = new Thread(r);
                 // 获取变量 cnt 的当前值，然后将其增加1，并返回变量的旧值。
-                thread.setName("线程" + cnt.getAndAdd(1));
+                thread.setName("线程池线程" + cnt.getAndAdd(1));
 //                thread.setUncaughtExceptionHandler(new CurrentThreadHandler());
                 return thread;
             }

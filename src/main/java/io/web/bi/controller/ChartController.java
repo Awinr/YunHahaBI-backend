@@ -257,7 +257,7 @@ public class ChartController {
     // region AI
 
     /**
-     * 文件上传
+     * 同步调动AI，需要等AI
      *
      * @param multipartFile
      * @param genChartByAIRequest
@@ -338,7 +338,7 @@ public class ChartController {
     }
 
     /**
-     * 文件上传
+     * 异步调用AI
      *
      * @param multipartFile
      * @param genChartByAIRequest
@@ -408,6 +408,7 @@ public class ChartController {
             }
             // 调用 AI
             String result = aiHelper.doChat(biModelId, userInput.toString());
+
             String[] splits = result.split("【【【【【");
             if (splits.length < 3) {
                 handleChartUpdateError(chart.getId(), "AI 生成错误");
@@ -425,6 +426,8 @@ public class ChartController {
                 handleChartUpdateError(chart.getId(), "更新图表成功状态失败");
             }
         }, threadPoolExecutorConfig.threadPoolExecutor());
+
+
         completableFuture.exceptionally(throwable -> {
             Chart updateChart = new Chart();
             updateChart.setId(chart.getId());
@@ -437,7 +440,7 @@ public class ChartController {
         });
 
         ChartVO chartVO = new ChartVO();
-        chartVO.setId(chartVO.getId());
+        chartVO.setId(chart.getId());
         return ResultUtils.success(chartVO);
     }
 
@@ -445,7 +448,7 @@ public class ChartController {
         Chart updateChartResult = new Chart();
         updateChartResult.setId(chartId);
         updateChartResult.setStatus(ChartStatusEnum.FAILED.getValue());
-        updateChartResult.setExecMessage("execMessage");
+        updateChartResult.setExecMessage(execMessage);
         boolean updateResult = chartService.updateById(updateChartResult);
         if (!updateResult) {
             log.error("更新图表失败状态失败" + chartId + "," + execMessage);

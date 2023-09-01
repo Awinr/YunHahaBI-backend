@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * 利用鱼聪明客户端进行AI调用
+ * 利用鱼聪明客户端助手进行AI调用
  *
  * @date 2023-06-07
  */

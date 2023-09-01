@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
  * MyBatis Plus 配置
  */
 @Configuration
-@MapperScan("io.web.springbootinit.mapper")
+@MapperScan("io.web.bi.mapper")
 public class MyBatisPlusConfig {
 
     /**
