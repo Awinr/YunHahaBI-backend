@@ -38,6 +38,24 @@ public class ThreadPoolExecutorConfig {
                 new ArrayBlockingQueue<>(10), threadFactory);
     }
 
+    @Bean
+    public ThreadPoolExecutor threadPoolIO() {
+        ThreadFactory threadFactory = new ThreadFactory() {
+            // 这样可以避免多线程竞争条件下的数据不一致问题。
+            private final AtomicInteger cnt = new AtomicInteger();
+
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread thread = new Thread(r);
+                // 获取变量 cnt 的当前值，然后将其增加1，并返回变量的旧值。
+                thread.setName("线程池线程" + cnt.getAndAdd(1));
+//                thread.setUncaughtExceptionHandler(new CurrentThreadHandler());
+                return thread;
+            }
+        };
+        return new ThreadPoolExecutor(8, 8, 60, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(10), threadFactory);
+    }
     public static class CurrentThreadHandler implements Thread.UncaughtExceptionHandler {
 
         @Override

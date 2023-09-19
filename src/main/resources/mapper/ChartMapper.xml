@@ -27,4 +27,22 @@
         userId,createTime,updateTime,
         isDelete
     </sql>
+
+    <sql id="createTableColumns">
+        <foreach collection="columns" item="column" separator=",">
+            ${column} null
+        </foreach>
+    </sql>
+    <select id="createTable" >
+        CREATE TABLE  IF NOT EXISTS ${tableName} (
+        <include refid="createTableColumns"/>
+        )
+    </select>
+
+    <insert id="insertTableData">
+        insert into ${tableName} values
+        <foreach collection="tableData" item="rowData" separator=",">
+            (${rowData})
+        </foreach>
+    </insert>
 </mapper>

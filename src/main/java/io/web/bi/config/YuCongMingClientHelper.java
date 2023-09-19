@@ -51,7 +51,7 @@ public class YuCongMingClientHelper {
             result = retryer.call(() -> {
                return  ((HttpRequest) HttpRequest.post(url)
                 .setConnectionTimeout(3000)
-                .setReadTimeout(30)
+                .setReadTimeout(30000)
                 .addHeaders(this.getHeaderMap(json)))
                 .body(json)
                 .execute()

@@ -321,7 +321,7 @@ public class ChartController {
         Chart chart = new Chart();
         chart.setName(name);
         chart.setGoal(goal);
-        chart.setChartData(csvData);
+        // chart.setChartData(csvData);
         chart.setChartType(chartType);
         chart.setGenChart(genChart);
         chart.setGenResult(genResult);
@@ -329,7 +329,15 @@ public class ChartController {
         chart.setStatus(ChartStatusEnum.SUCCEED.getValue());
         boolean saveResult = chartService.save(chart);
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "图表保存失败");
-
+        // 异步执行分库分表
+        CompletableFuture<Void> completableFutureIO = CompletableFuture.runAsync(() -> {
+            String tableName = "chart_" + chart.getId();
+            chartService.separateTable(multipartFile, tableName);
+        }, threadPoolExecutorConfig.threadPoolIO());
+        completableFutureIO.exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
         ChartVO chartVO = new ChartVO();
         chartVO.setGenChart(genChart);
         chartVO.setGenResult(genResult);
@@ -356,6 +364,7 @@ public class ChartController {
         if (StringUtils.isBlank(goal)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "分析目标为空");
         }
+        // 限流
         boolean tryAcquireRateLimit = redissonManager.tryAcquireRateLimit("AI_Rate_" + loginUser.getId());
         if (!tryAcquireRateLimit) {
             throw new BusinessException(ErrorCode.TOO_MANY_REQUEST);
@@ -389,12 +398,25 @@ public class ChartController {
         Chart chart = new Chart();
         chart.setName(name);
         chart.setGoal(goal);
-        chart.setChartData(csvData);
+        long ONE_K = 1024L;
+
+//        chart.setChartData(csvData);
         chart.setChartType(chartType);
         chart.setStatus(ChartStatusEnum.WAIT.getValue());
         chart.setUserId(loginUser.getId());
         boolean saveResult = chartService.save(chart);
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "图表保存失败");
+
+        // 异步执行分库分表
+        CompletableFuture<Void> completableFutureIO = CompletableFuture.runAsync(() -> {
+            String tableName = "chart_" + chart.getId();
+            chartService.separateTable(multipartFile, tableName);
+        }, threadPoolExecutorConfig.threadPoolIO());
+        completableFutureIO.exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+
 
         CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> {
             // 先修改图表任务状态为 “执行中”。等执行成功后，修改为 “已完成”、保存执行结果；执行失败后，状态修改为 “失败”，记录任务失败信息。
@@ -425,8 +447,9 @@ public class ChartController {
             if (!updateResult) {
                 handleChartUpdateError(chart.getId(), "更新图表成功状态失败");
             }
+            // 线程池通常用于执行任务，而任务通常是实现了 Runnable 接口的类的实例。
+            // 你可以将需要执行的任务封装成 Runnable 对象，然后将它们提交给线程池，线程池会负责执行这些任务。
         }, threadPoolExecutorConfig.threadPoolExecutor());
-
 
         completableFuture.exceptionally(throwable -> {
             Chart updateChart = new Chart();
