@@ -32,10 +32,14 @@ public class QaComponent {
 
     private final AssistantService assistantService;
 
-    @RabbitListener(
-            bindings = @QueueBinding(value = @Queue("qaQueue"),
-                    exchange = @Exchange("qaDirectExchange")
-                    , key = "qaRouting"))
+    /**
+     * 指定转发消息规则：exchange 通过 key 将消息转发到 value(queue)
+     */
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue("qaQueue"),
+            exchange = @Exchange("qaDirectExchange"),
+            key = "qaRouting"
+    ))
     public void handle(Message message, Channel channel) throws IOException {
         Assistant assistant = null;
         try {
@@ -48,11 +52,12 @@ public class QaComponent {
             assistant.setQuestionRes(result);
             assistant.setStatus(ChartStatusEnum.SUCCEED.getValue());
             assistantService.updateById(assistant);
-            // 交付标签，消息id
+
+            // 确认接受消息，消息可以从队列中移除了
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            // 拒绝后丢弃
+            // 出现异常后拒绝接受消息
             channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
             if (assistant != null) {
                 assistant.setStatus(ChartStatusEnum.FAILED.getValue());

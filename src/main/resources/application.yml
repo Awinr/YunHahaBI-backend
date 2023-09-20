@@ -104,3 +104,7 @@ yuapi:
   client:
     access-key: 6j1zmr5n97fld6cofo39tvgo8co4ws5a  # 6dmz5g6ulrw0jrpjcv7oyilwyi5n3n8w
     secret-key: 9crna2uxeibma4x97ycy3kydzl2nci0u  # ozooxkjuelrft8vwmb1pfb9i9v5ay0yp
+
+#  问答助手的模型id,不是生成图表模型的
+model-id:
+  assistant: 1697214153262956546 # 1651472538074726401

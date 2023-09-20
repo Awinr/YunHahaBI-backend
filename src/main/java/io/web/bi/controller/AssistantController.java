@@ -291,9 +291,10 @@ public class AssistantController {
         assistant.setStatus(ChartStatusEnum.WAIT.getValue());
         assistant.setUserId(loginUser.getId());
         boolean save = assistantService.save(assistant);
-
+        // json: {"id":1704490144612085762,"name":"JavaMap","goal":"Java中map的底层原理是怎样的","status":"wait","dictId":1704477069381066754,"userId":1}
         String json = GSON.toJson(assistant);
-        // 发送到消息队列
+        log.info(json);
+        // 将消息以 JSON 格式发送到 RabbitMQ 中的指定 Direct Exchange，并且根据指定的路由键进行消息路由。
         rabbitTemplate.convertAndSend("qaDirectExchange", "qaRouting", json);
 
         // 插入到数据库

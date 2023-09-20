@@ -398,24 +398,26 @@ public class ChartController {
         Chart chart = new Chart();
         chart.setName(name);
         chart.setGoal(goal);
-        long ONE_K = 1024L;
-
-//        chart.setChartData(csvData);
         chart.setChartType(chartType);
         chart.setStatus(ChartStatusEnum.WAIT.getValue());
         chart.setUserId(loginUser.getId());
         boolean saveResult = chartService.save(chart);
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "图表保存失败");
 
-        // 异步执行分库分表
-        CompletableFuture<Void> completableFutureIO = CompletableFuture.runAsync(() -> {
-            String tableName = "chart_" + chart.getId();
-            chartService.separateTable(multipartFile, tableName);
-        }, threadPoolExecutorConfig.threadPoolIO());
-        completableFutureIO.exceptionally(throwable -> {
-            throwable.printStackTrace();
-            return null;
-        });
+        long HALF_M = 512 * 1024L;
+        if (multipartFile.getSize() > HALF_M) {
+            // 异步执行分库分表
+            CompletableFuture<Void> completableFutureIO = CompletableFuture.runAsync(() -> {
+                String tableName = "chart_" + chart.getId();
+                chartService.separateTable(multipartFile, tableName);
+            }, threadPoolExecutorConfig.threadPoolIO());
+            completableFutureIO.exceptionally(throwable -> {
+                throwable.printStackTrace();
+                return null;
+            });
+        } else {
+            chart.setChartData(csvData);
+        }
 
 
         CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> {
