@@ -1,17 +1,32 @@
 import com.alibaba.excel.EasyExcel;
 import com.google.common.util.concurrent.RateLimiter;
+import io.web.bi.AdminApplication;
+import io.web.bi.mapper.ChartMapper;
+import io.web.bi.model.entity.Chart;
+import io.web.bi.service.ChartService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@SpringBootTest
 public class TestExcel {
     /**
      * 同步的返回，不推荐使用，如果数据量大会把数据放到内存里面
      */
+    @Resource
+    public ChartMapper chartMapper;
+
+    @Resource
+    public ChartService chartService;
+
     @Test
     public void synchronousRead() {
         String fileName = "";
@@ -42,7 +57,7 @@ public class TestExcel {
         System.out.println(v + " " + v2);
     }
     @Test
-    public static void testRateLimiter() {
+    public  void testRateLimiter() {
         //每秒限流5个请求
         RateLimiter limiter = RateLimiter.create(5.0);
         int count = 1;

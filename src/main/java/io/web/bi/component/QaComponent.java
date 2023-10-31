@@ -2,6 +2,7 @@ package io.web.bi.component;
 
 import com.google.gson.Gson;
 import com.rabbitmq.client.Channel;
+import io.swagger.models.auth.In;
 import io.web.bi.config.ModelIdProperties;
 import io.web.bi.manager.AIHelper;
 import io.web.bi.model.entity.Assistant;
@@ -14,6 +15,8 @@ import org.springframework.amqp.rabbit.annotation.*;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 消费者消费消息

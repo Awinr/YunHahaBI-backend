@@ -38,6 +38,12 @@
         <include refid="createTableColumns"/>
         )
     </select>
+    <select id="selectBySingleTableName" resultType="io.web.bi.model.entity.Chart" >
+        select chartData from chart where id = #{id}
+    </select>
+    <select id="selectEntireByTableName" resultType="io.web.bi.model.entity.Chart">
+        select chartData from chart where id = #{id}
+    </select>
 
     <insert id="insertTableData">
         insert into ${tableName} values

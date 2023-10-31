@@ -24,7 +24,7 @@ spring:
 # Redis 配置
   redis:
     database: 1
-    host: 192.168.186.128
+    host: 124.220.46.25 # 192.168.186.128
     port: 6379
     timeout: 5000
     password: root
@@ -59,6 +59,7 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    cacheEnabled: false
   global-config:
     db-config:
       logic-delete-field: isDelete # 全局逻辑删除的实体字段名
